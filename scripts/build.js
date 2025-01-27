@@ -3,8 +3,8 @@ const path = require('path');
 const marked = require('marked');
 const frontMatter = require('front-matter');
 
-// Template for HTML files
-const createHtmlTemplate = (title, content) => `
+// Enhanced template with better styling for content
+const createHtmlTemplate = (title, metadata, content) => `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,7 +25,21 @@ const createHtmlTemplate = (title, content) => `
     </nav>
 
     <main class="container">
-        ${content}
+        <article class="content-article">
+            <header class="content-header">
+                <h1>${title}</h1>
+                ${metadata.date ? `<div class="content-date">${new Date(metadata.date).toLocaleDateString()}</div>` : ''}
+                ${metadata.tags ? `
+                    <div class="tags">
+                        ${metadata.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                ` : ''}
+                ${metadata.author ? `<div class="content-author">By ${metadata.author}</div>` : ''}
+            </header>
+            <div class="content-body">
+                ${content}
+            </div>
+        </article>
     </main>
 
     <footer>
@@ -67,7 +81,8 @@ async function buildMarkdownFiles() {
                     
                     const fullHtml = createHtmlTemplate(
                         attributes.title || 'Untitled',
-                        `<h1>${attributes.title || 'Untitled'}</h1>${htmlContent}`
+                        attributes,
+                        htmlContent
                     );
 
                     await fs.writeFile(htmlPath, fullHtml);
