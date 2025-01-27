@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projects - Your Name</title>
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <nav class="navbar">
@@ -18,13 +18,17 @@
     </nav>
 
     <main class="container">
-        <h1>Projects</h1>
-        <div id="projects-list"></div>
-        <div id="project-content" style="display: none;">
-            <h2 id="project-title"></h2>
-            <div id="project-details"></div>
-            <div id="project-body"></div>
-        </div>
+        <section class="hero">
+            <div class="hero-content">
+                <h1 class="main-heading">Projects</h1>
+                <div id="projects-list"></div>
+                <div id="project-content" style="display: none;">
+                    <h2 id="project-title"></h2>
+                    <div id="project-details"></div>
+                    <div id="project-body"></div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <footer>
@@ -32,7 +36,7 @@
     </footer>
     
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="/js/markdown.js"></script>
+    <script src="js/markdown.js"></script>
     <script>
         async function loadProjectsList() {
             try {
@@ -47,9 +51,9 @@
                         <h2>${project.title}</h2>
                         <p>${project.date}</p>
                         <div class="tags">
-                            ${project.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                            ${project.tags ? project.tags.map(tag => `<span class="tag">${tag}</span>`).join('') : ''}
                         </div>
-                        <a href="/projects/${project.slug}">View Project →</a>
+                        <a href="/projects/${project.slug}" class="preview-link">View Project →</a>
                     `;
                     projectsList.appendChild(projectElement);
                 });
