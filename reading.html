@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading List - Your Name</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">Your Name</div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="reading.html">Reading</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        <h1>Reading List</h1>
+        <div id="reading-list"></div>
+        <div id="book-content" style="display: none;">
+            <h2 id="book-title"></h2>
+            <div id="book-details"></div>
+            <div id="book-body"></div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Your Name. All rights reserved.</p>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="/js/markdown.js"></script>
+    <script>
+        async function loadReadingList() {
+            try {
+                const response = await fetch('/api/content/reading/list');
+                const books = await response.json();
+                const readingList = document.getElementById('reading-list');
+                
+                books.forEach(book => {
+                    const bookElement = document.createElement('div');
+                    bookElement.className = 'book-preview';
+                    bookElement.innerHTML = `
+                        <h2>${book.title}</h2>
+                        <p>by ${book.author}</p>
+                        <p>Rating: ${book.rating}/5</p>
+                        <a href="/reading/${book.slug}">Read Review →</a>
+                    `;
+                    readingList.appendChild(bookElement);
+                });
+            } catch (error) {
+                console.error('Error loading reading list:', error);
+            }
+        }
+
+        loadReadingList();
+    </script>
+</body>
+</html> 
