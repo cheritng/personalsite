@@ -15,11 +15,18 @@ app.use((req, res, next) => {
 
 // Update the static file serving
 app.use(express.static('public'));
-app.use(express.static('.'));  // This will allow serving files from the root directory
+app.use('/css', express.static('css'));
+app.use('/js', express.static('js'));
+app.use('/images', express.static('images'));
 
 // Add a route for the root path
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Add this route after the root route
+app.get('/blog.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'blog.html'));
 });
 
 // Remove the /api/content route since we're now using static files
@@ -29,10 +36,14 @@ app.get('/api/content/:type/list', async (req, res) => {
     try {
         const { type } = req.params;
         const dirPath = path.join(__dirname, 'content', type);
+        console.log('Looking for content in:', dirPath);
+        
         const files = await fs.readdir(dirPath);
+        console.log('Found files:', files);
         
         const contentList = await Promise.all(
             files.map(async (file) => {
+                if (!file.endsWith('.md')) return null;
                 const content = await fs.readFile(path.join(dirPath, file), 'utf-8');
                 const { attributes } = frontMatter(content);
                 return {
@@ -42,7 +53,10 @@ app.get('/api/content/:type/list', async (req, res) => {
             })
         );
         
-        res.json(contentList);
+        const filteredList = contentList.filter(item => item !== null);
+        console.log('Processed content:', filteredList);
+        
+        res.json(filteredList);
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: 'Error loading content list' });

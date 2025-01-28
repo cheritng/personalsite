@@ -40,7 +40,7 @@
                 const posts = await response.json();
                 const blogList = document.getElementById('blog-list');
                 
-                if (posts.length === 0) {
+                if (!posts || posts.length === 0) {
                     blogList.innerHTML = '<p>No blog posts found.</p>';
                     return;
                 }
@@ -49,18 +49,19 @@
                     const postElement = document.createElement('div');
                     postElement.className = 'blog-card';
                     postElement.innerHTML = `
-                        <div class="blog-card-category">Writing · Blog</div>
                         <h2 class="blog-card-title">${post.title}</h2>
                         <div class="blog-card-date">${new Date(post.date || new Date()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
                         <p class="blog-card-excerpt">${post.excerpt || 'Click to read more...'}</p>
-                        <a href="/blog/${post.slug}" class="blog-card-link" aria-label="Read ${post.title}"></a>
+                        <div class="tags">
+                            ${post.tags ? post.tags.map(tag => `<span class="tag">${tag}</span>`).join('') : ''}
+                        </div>
+                        <a href="/blog/${post.slug}" class="blog-card-link" aria-label="Read ${post.title}">Read more →</a>
                     `;
                     blogList.appendChild(postElement);
                 });
             } catch (error) {
                 console.error('Error loading blog list:', error);
-                const blogList = document.getElementById('blog-list');
-                blogList.innerHTML = '<p>Error loading blog posts. Please try again later.</p>';
+                document.getElementById('blog-list').innerHTML = '<p>Error loading blog posts. Please try again later.</p>';
             }
         }
 
