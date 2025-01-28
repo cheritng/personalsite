@@ -29,14 +29,20 @@ const createHtmlTemplate = (title, metadata, content) => `
             <header class="content-header">
                 <h1>${title}</h1>
                 ${metadata.date ? `<div class="content-date">${new Date(metadata.date).toLocaleDateString()}</div>` : ''}
+                ${metadata.author ? `<div class="content-author">By ${metadata.author}</div>` : ''}
+                ${metadata.rating ? `<div class="book-rating">Rating: ${metadata.rating}/5</div>` : ''}
+                ${metadata.category ? `
+                    <div class="tags">
+                        ${metadata.category.map(cat => `<span class="tag">${cat}</span>`).join('')}
+                    </div>
+                ` : ''}
                 ${metadata.tags ? `
                     <div class="tags">
                         ${metadata.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
                     </div>
                 ` : ''}
-                ${metadata.author ? `<div class="content-author">By ${metadata.author}</div>` : ''}
             </header>
-            <div class="content-body">
+            <div class="content-body book-content">
                 ${content}
             </div>
         </article>

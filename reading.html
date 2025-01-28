@@ -18,13 +18,14 @@
     </nav>
 
     <main class="container">
-        <h1>Reading List</h1>
-        <div id="reading-list"></div>
-        <div id="book-content" style="display: none;">
-            <h2 id="book-title"></h2>
-            <div id="book-details"></div>
-            <div id="book-body"></div>
-        </div>
+        <article class="content-article">
+            <header class="content-header">
+                <h1>Reading List</h1>
+            </header>
+            <div class="content-body">
+                <div id="reading-list"></div>
+            </div>
+        </article>
     </main>
 
     <footer>
@@ -45,9 +46,16 @@
                     bookElement.className = 'book-preview';
                     bookElement.innerHTML = `
                         <h2>${book.title}</h2>
-                        <p>by ${book.author}</p>
-                        <p>Rating: ${book.rating}/5</p>
-                        <a href="/reading/${book.slug}">Read Review →</a>
+                        <div class="book-meta">
+                            <span class="book-author">by ${book.author}</span>
+                            <span class="book-rating">Rating: ${book.rating}/5</span>
+                        </div>
+                        ${book.category ? `
+                            <div class="tags">
+                                ${book.category.map(cat => `<span class="tag">${cat}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                        <a href="/reading/${book.slug}" class="preview-link">Read Review →</a>
                     `;
                     readingList.appendChild(bookElement);
                 });
