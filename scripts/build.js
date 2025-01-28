@@ -2,6 +2,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const marked = require('marked');
 const frontMatter = require('front-matter');
+const chokidar = require('chokidar');
 
 // Enhanced template with better styling for content
 const createHtmlTemplate = (title, metadata, content) => `
@@ -56,55 +57,53 @@ const createHtmlTemplate = (title, metadata, content) => `
 </html>
 `;
 
-async function buildMarkdownFiles() {
-    const contentTypes = ['blog', 'projects', 'reading'];
-    
-    for (const type of contentTypes) {
-        try {
-            // Create public directory if it doesn't exist
-            const publicDir = path.join(__dirname, '..', 'public');
-            await fs.mkdir(publicDir, { recursive: true });
+async function buildMarkdownFile(filePath) {
+    try {
+        const content = await fs.readFile(filePath, 'utf-8');
+        const { attributes, body } = frontMatter(content);
+        const htmlContent = marked.parse(body);
+        
+        // Determine the content type from the file path
+        const contentType = path.dirname(filePath).split(path.sep).pop();
+        
+        // Create output directory if it doesn't exist
+        const outputDir = path.join(__dirname, '..', 'public', contentType);
+        await fs.mkdir(outputDir, { recursive: true });
+        
+        // Create HTML file
+        const htmlFileName = path.basename(filePath, '.md') + '.html';
+        const htmlPath = path.join(outputDir, htmlFileName);
+        
+        const fullHtml = createHtmlTemplate(
+            attributes.title || 'Untitled',
+            attributes,
+            htmlContent
+        );
 
-            // Create type-specific directory
-            const outputDir = path.join(publicDir, type);
-            await fs.mkdir(outputDir, { recursive: true });
-
-            // Read markdown files
-            const contentDir = path.join(__dirname, '..', 'content', type);
-            const files = await fs.readdir(contentDir);
-
-            for (const file of files) {
-                if (path.extname(file) === '.md') {
-                    const filePath = path.join(contentDir, file);
-                    const content = await fs.readFile(filePath, 'utf-8');
-                    
-                    // Parse front matter and markdown
-                    const { attributes, body } = frontMatter(content);
-                    const htmlContent = marked.parse(body);
-                    
-                    // Create HTML file
-                    const htmlFileName = path.basename(file, '.md') + '.html';
-                    const htmlPath = path.join(outputDir, htmlFileName);
-                    
-                    const fullHtml = createHtmlTemplate(
-                        attributes.title || 'Untitled',
-                        attributes,
-                        htmlContent
-                    );
-
-                    await fs.writeFile(htmlPath, fullHtml);
-                    console.log(`Built ${htmlPath}`);
-                }
-            }
-        } catch (error) {
-            if (error.code === 'ENOENT') {
-                console.log(`No ${type} directory found, skipping...`);
-            } else {
-                console.error(`Error processing ${type}:`, error);
-            }
-        }
+        await fs.writeFile(htmlPath, fullHtml);
+        console.log(`Built ${htmlPath}`);
+    } catch (error) {
+        console.error('Error building markdown file:', error);
     }
 }
 
-// Run the build
-buildMarkdownFiles(); 
+// Watch for changes in markdown files
+const watcher = chokidar.watch('content/**/*.md', {
+    persistent: true,
+    ignoreInitial: false
+});
+
+watcher
+    .on('add', buildMarkdownFile)
+    .on('change', buildMarkdownFile)
+    .on('unlink', async (filePath) => {
+        const htmlPath = filePath.replace('content', 'public').replace('.md', '.html');
+        try {
+            await fs.unlink(htmlPath);
+            console.log(`Removed ${htmlPath}`);
+        } catch (error) {
+            console.error('Error removing HTML file:', error);
+        }
+    });
+
+console.log('Watching for markdown file changes...'); 

@@ -19,13 +19,10 @@
     </nav>
 
     <main class="container">
-        <h1>Blog Posts</h1>
-        <div id="blog-list"></div>
-        <div id="post-content" style="display: none;">
-            <h2 id="post-title"></h2>
-            <div id="post-date"></div>
-            <div id="post-body"></div>
-        </div>
+        <h1 class="blog-title">writing.</h1>
+        <p class="blog-description">Random thoughts, technical writings, and everything in between. A digital garden of ideas growing in public.</p>
+        
+        <div class="blog-grid" id="blog-list"></div>
     </main>
 
     <footer>
@@ -33,9 +30,7 @@
     </footer>
     
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="public/js/markdown.js"></script>
     <script>
-        // Load blog posts list
         async function loadBlogList() {
             try {
                 const response = await fetch('/api/content/blog/list');
@@ -44,11 +39,13 @@
                 
                 posts.forEach(post => {
                     const postElement = document.createElement('div');
-                    postElement.className = 'blog-preview';
+                    postElement.className = 'blog-card';
                     postElement.innerHTML = `
-                        <h2>${post.title}</h2>
-                        <p>${post.date}</p>
-                        <a href="/blog/${post.slug}">Read more</a>
+                        <div class="blog-card-category">Writing · Blog</div>
+                        <h2 class="blog-card-title">${post.title}</h2>
+                        <div class="blog-card-date">${new Date(post.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
+                        <p class="blog-card-excerpt">${post.excerpt || 'Click to read more...'}</p>
+                        <a href="/blog/${post.slug}" class="blog-card-link" aria-label="Read ${post.title}"></a>
                     `;
                     blogList.appendChild(postElement);
                 });

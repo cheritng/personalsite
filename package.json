@@ -7,7 +7,7 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "build": "node scripts/build.js",
-    "watch": "nodemon --watch content -e md scripts/build.js"
+    "watch": "node scripts/build.js"
   },
   "dependencies": {
     "express": "^4.21.2",
