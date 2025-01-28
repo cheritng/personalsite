@@ -22,50 +22,34 @@
         <h1 class="blog-title">writing.</h1>
         <p class="blog-description">Random thoughts, technical writings, and everything in between. A digital garden of ideas growing in public.</p>
         
-        <div class="blog-grid" id="blog-list"></div>
+        <div class="blog-grid">
+            <!-- Blog posts will be statically generated here -->
+            <div class="blog-card">
+                <h2 class="blog-card-title">My First Blog Post</h2>
+                <div class="blog-card-date">March 20, 2024</div>
+                <p class="blog-card-excerpt">A brief introduction to my journey in web development and what I hope to achieve with this blog...</p>
+                <div class="tags">
+                    <span class="tag">coding</span>
+                    <span class="tag">web development</span>
+                </div>
+                <a href="/blog/first-post.html" class="blog-card-link" aria-label="Read My First Blog Post"></a>
+            </div>
+
+            <div class="blog-card">
+                <h2 class="blog-card-title">My Blog Post</h2>
+                <div class="blog-card-date">March 21, 2024</div>
+                <p class="blog-card-excerpt">This is the content of my blog post...</p>
+                <div class="tags">
+                    <span class="tag">web development</span>
+                    <span class="tag">javascript</span>
+                </div>
+                <a href="/blog/example.html" class="blog-card-link" aria-label="Read My Blog Post"></a>
+            </div>
+        </div>
     </main>
 
     <footer>
         <p>&copy; 2024 Your Name. All rights reserved.</p>
     </footer>
-    
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script>
-        async function loadBlogList() {
-            try {
-                const response = await fetch('/api/content/blog/list');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const posts = await response.json();
-                const blogList = document.getElementById('blog-list');
-                
-                if (!posts || posts.length === 0) {
-                    blogList.innerHTML = '<p>No blog posts found.</p>';
-                    return;
-                }
-                
-                posts.forEach(post => {
-                    const postElement = document.createElement('div');
-                    postElement.className = 'blog-card';
-                    postElement.innerHTML = `
-                        <h2 class="blog-card-title">${post.title}</h2>
-                        <div class="blog-card-date">${new Date(post.date || new Date()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
-                        <p class="blog-card-excerpt">${post.excerpt || 'Click to read more...'}</p>
-                        <div class="tags">
-                            ${post.tags ? post.tags.map(tag => `<span class="tag">${tag}</span>`).join('') : ''}
-                        </div>
-                        <a href="/blog/${post.slug}" class="blog-card-link" aria-label="Read ${post.title}">Read more →</a>
-                    `;
-                    blogList.appendChild(postElement);
-                });
-            } catch (error) {
-                console.error('Error loading blog list:', error);
-                document.getElementById('blog-list').innerHTML = '<p>Error loading blog posts. Please try again later.</p>';
-            }
-        }
-
-        loadBlogList();
-    </script>
 </body>
 </html> 
