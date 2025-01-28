@@ -29,34 +29,54 @@ app.get('/blog.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'blog.html'));
 });
 
-// Remove the /api/content route since we're now using static files
+// Add these content handling routes
+app.get('/api/content/:type/:slug', async (req, res) => {
+    try {
+        const { type, slug } = req.params;
+        const filePath = path.join(__dirname, 'content', type, `${slug}.md`);
+        const content = await fs.readFile(filePath, 'utf-8');
+        
+        const { attributes, body } = frontMatter(content);
+        const htmlContent = marked.parse(body);
+        
+        res.json({
+            metadata: attributes,
+            content: htmlContent
+        });
+    } catch (error) {
+        console.error('Error loading content:', error);
+        res.status(404).json({ error: 'Content not found' });
+    }
+});
 
-// Add this new route to list content
 app.get('/api/content/:type/list', async (req, res) => {
     try {
         const { type } = req.params;
         const dirPath = path.join(__dirname, 'content', type);
-        console.log('Looking for content in:', dirPath);
-        
         const files = await fs.readdir(dirPath);
-        console.log('Found files:', files);
         
         const contentList = await Promise.all(
-            files.map(async (file) => {
-                if (!file.endsWith('.md')) return null;
-                const content = await fs.readFile(path.join(dirPath, file), 'utf-8');
-                const { attributes } = frontMatter(content);
-                return {
-                    ...attributes,
-                    slug: file.replace('.md', '')
-                };
-            })
+            files
+                .filter(file => file.endsWith('.md'))
+                .map(async (file) => {
+                    const content = await fs.readFile(path.join(dirPath, file), 'utf-8');
+                    const { attributes } = frontMatter(content);
+                    return {
+                        ...attributes,
+                        slug: file.replace('.md', '')
+                    };
+                })
         );
         
-        const filteredList = contentList.filter(item => item !== null);
-        console.log('Processed content:', filteredList);
+        // Sort by date if available
+        contentList.sort((a, b) => {
+            if (a.date && b.date) {
+                return new Date(b.date) - new Date(a.date);
+            }
+            return 0;
+        });
         
-        res.json(filteredList);
+        res.json(contentList);
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: 'Error loading content list' });

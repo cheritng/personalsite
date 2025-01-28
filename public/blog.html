@@ -51,5 +51,49 @@
     <footer>
         <p>&copy; 2024 Your Name. All rights reserved.</p>
     </footer>
+
+    <script>
+        async function loadBlogList() {
+            try {
+                const blogList = document.getElementById('blog-list');
+                
+                // Add static blog posts from the content directory
+                const posts = [
+                    {
+                        title: "My First Blog Post",
+                        date: "2024-03-20",
+                        excerpt: "A brief introduction to my journey in web development and what I hope to achieve with this blog...",
+                        slug: "first-post",
+                        tags: ["coding", "web development"]
+                    },
+                    {
+                        title: "hello world",
+                        date: "2024-03-21", 
+                        excerpt: "This is my second post. Trying out the format.",
+                        slug: "second-post"
+                    }
+                ];
+                
+                posts.forEach(post => {
+                    const postElement = document.createElement('div');
+                    postElement.className = 'blog-card';
+                    postElement.innerHTML = `
+                        <div class="blog-card-category">Writing · Blog</div>
+                        <h2 class="blog-card-title">${post.title}</h2>
+                        <div class="blog-card-date">${new Date(post.date || new Date()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
+                        <p class="blog-card-excerpt">${post.excerpt || 'Click to read more...'}</p>
+                        <a href="/blog/${post.slug}.html" class="blog-card-link" aria-label="Read ${post.title}"></a>
+                    `;
+                    blogList.appendChild(postElement);
+                });
+            } catch (error) {
+                console.error('Error loading blog list:', error);
+                const blogList = document.getElementById('blog-list');
+                blogList.innerHTML = '<p>Error loading blog posts. Please try again later.</p>';
+            }
+        }
+
+        loadBlogList();
+    </script>
 </body>
 </html> 
